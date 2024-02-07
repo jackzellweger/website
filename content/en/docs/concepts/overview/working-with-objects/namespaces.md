@@ -10,7 +10,11 @@ weight: 45
 
 <!-- overview -->
 
-In Kubernetes, _namespaces_ provides a mechanism for isolating groups of resources within a single cluster. Names of resources need to be unique within a namespace, but not across namespaces. Namespace-based scoping applies to namespaced {{< glossary_tooltip text="objects" term_id="object" >}} _(e.g. Deployments, Services, etc)_ only and not to cluster-wide objects _(e.g. StorageClass, Nodes, PersistentVolumes, etc)_.
+In Kubernetes, _namespaces_ provides a mechanism for isolating groups of resources within a single cluster. 
+
+<!-- Needs work here -->
+
+Names of resources need to be unique within a namespace, but not across namespaces. Namespace-based scoping applies to namespaced {{< glossary_tooltip text="objects" term_id="object" >}} _(e.g. Deployments, Services, etc)_ only and not to cluster-wide objects _(e.g. StorageClass, Nodes, PersistentVolumes, etc)_.
 
 <!-- body -->
 
@@ -18,12 +22,11 @@ In Kubernetes, _namespaces_ provides a mechanism for isolating groups of resourc
 
 Namespaces
 
-"Namespaces," is a tool Kubernetes for setting logical boundaries between applications, offering a way to separate unrelated parts of the cluster into their own areas.
+Used by organizations both small and large for different purposes, namespaces are super versitile. 
 
-Namespaces are intended for use in environments with many users spread across multiple
-teams or projects. For clusters with a few to tens of users, you should not
-need to create or think about namespaces at all. Start using namespaces when you
-need the features they provide.
+For example, small orgs may use namespaces to set boundaries between resources and limit blast radius of any errors or security vulnerabilities that may occur. Larger organizations may use namespaces to logically separate resources that handle different kinds of workloads, or resources managed by different departments or teams.
+
+Namespaces are not strictly necessary for Kubernetes to function, and not every team needs the logical boundaries that namespaces provide. Start using namespaces when you need what they offer!
 
 Namespaces provide a scope for names.  Names of resources need to be unique within a namespace,
 but not across namespaces. Namespaces cannot be nested inside one another and each Kubernetes 
