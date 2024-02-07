@@ -17,7 +17,7 @@ In Kubernetes, _namespaces_ provides a mechanism for isolating groups of resourc
 ## When to Use Multiple Namespaces
 
 Namespaces are intended for use in environments with many users spread across multiple
-teams, or projects.  For clusters with a few to tens of users, you should not
+teams, or projects.<!-- --> For clusters with a few to tens of users, you should not
 need to create or think about namespaces at all.  Start using namespaces when you
 need the features they provide.
 
