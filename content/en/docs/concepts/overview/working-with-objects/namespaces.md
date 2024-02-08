@@ -43,7 +43,7 @@ Without any other configuration Kubernetes starts with four namespaces:
 : This namespace holds [Lease](/docs/concepts/architecture/leases/) objects associated with each node. Node leases allow the kubelet to send [heartbeats](/docs/concepts/architecture/nodes/#heartbeats) so that the control plane can detect node failure.
 
 `kube-public`
-: This namespace is readable by *all* clients (including those not authenticated). This namespace is mostly reserved for use by the cluster itself, in case that some resources should be visible and readable publicly throughout the whole cluster. The public aspect of this namespace is only a convention, not a requirement.
+: This namespace is readable by *all* clients (including those not authenticated). This namespace is mostly reserved for cluster usage, in case that some resources should be visible and readable publicly throughout the whole cluster. The public aspect of this namespace is only a convention, not a requirement.
 
 `kube-system`
 : The namespace for objects created by the Kubernetes system.
