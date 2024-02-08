@@ -89,7 +89,7 @@ Without specifying the `--namespace` flag, `kubectl` commands apply to the defau
 ### Setting the namespace preference
 
 <!-- TODO: Improve writing, make easier to understand -->
-You can permanently save the namespace for all subsequent kubectl commands in that context.
+You can permanently save a namespace for all subsequent `kubectl` commands in your current context.
 
 ```shell
 kubectl config set-context --current --namespace=<insert-namespace-name-here>
@@ -99,48 +99,44 @@ kubectl config view --minify | grep namespace:
 
 ### Tips and tricks
 
-- It is not necessary to use multiple namespaces to separate slightly different resources, such as different versions of the same software: use {{< glossary_tooltip text="labels" term_id="label" >}} to distinguish resources within the same namespace.
+- Namespaces should only be used to separate resources that differ sufficiently. For example, for different versions of the same software: use {{< glossary_tooltip text="labels" term_id="label" >}} to reference resources within the same namespace.
 
 <!-- TODO: Why? -->
 - For a production cluster, consider _not_ using the `default` namespace. Instead, make other namespaces and use those.
 
 ## Namespaces and DNS
 
-When you create a [Service](/docs/concepts/services-networking/service/),
-it creates a corresponding [DNS entry](/docs/concepts/services-networking/dns-pod-service/).
-This entry is of the form `<service-name>.<namespace-name>.svc.cluster.local`, which means
-that if a container only uses `<service-name>`, it will resolve to the service which
-is local to a namespace.  This is useful for using the same configuration across
-multiple namespaces such as Development, Staging and Production.  If you want to reach
-across namespaces, you need to use the fully qualified domain name (FQDN).
+When you create a [Service](/docs/concepts/services-networking/service/), Kubernetes creates a corresponding [DNS entry](/docs/concepts/services-networking/dns-pod-service/) of the form `<service-name>.<namespace-name>.svc.cluster.local`.
 
-As a result, all namespace names must be valid
-[RFC 1123 DNS labels](/docs/concepts/overview/working-with-objects/names/#dns-label-names).
+### Shorthand to reference local services
+
+When communicating with services in their local namespace, containers can use the shorthand `<service-name>` (without the rest of the full domain name `<namespace-name>.svc.cluster.local`), and Kubernetes automatic DNS resolution will resolve to the correct service in the local namespace. This shorthand and automatic DNS resolution is useful when using the same configuration across multiple namespaces—Development, Staging and Production—for example. If containers want to communicate with services outside of the local namespace, it can use the full domain name, which includes the service name, namespace name, and the standard `svc.cluster.local` suffix.
+
+```shell
+# When communicating with services in their local namespace
+<service-name>
+
+# When communicating with services outside their local namespace
+<service-name>.<namespace-name>.svc.cluster.local
+```
+
+### Namespace name requirements
+
+As a result of the above domain conventions, all namespace names must be valid [RFC 1123 DNS labels](/docs/concepts/overview/working-with-objects/names/#dns-label-names). This ensures that the names can be effectively used within Kubernetes DNS records.
 
 {{< warning >}}
-By creating namespaces with the same name as [public top-level
-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt), Services in these
-namespaces can have short DNS names that overlap with public DNS records.
-Workloads from any namespace performing a DNS lookup without a [trailing dot](https://datatracker.ietf.org/doc/html/rfc1034#page-8) will
-be redirected to those services, taking precedence over public DNS.
+By creating namespaces with the same name as [public top-level domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt), services with short DNS names run the risk of collision with public DNS records. Workloads from any namespace performing a DNS lookup without a [trailing dot](https://datatracker.ietf.org/doc/html/rfc1034#page-8) will be redirected to those services, taking precedence over public DNS.
 
-To mitigate this, limit privileges for creating namespaces to trusted users. If
-required, you could additionally configure third-party security controls, such
-as [admission
-webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/),
-to block creating any namespace with the name of [public
-TLDs](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
+<!-- Without a trailing dot, DNS lookups by workloads may first attempt to resolve names using internal DNS configurations. If no internal match is found, and the queried name matches a public domain, the resolver might then query external DNS, potentially leading to responses from public services. Including a trailing dot in the query explicitly bypasses internal search domains, directing the resolver to treat the query as an absolute name and consult the appropriate DNS records directly.-->
+
+To mitigate this, limit privileges for creating namespaces to trusted users. If required, you could additionally configure third-party security controls, such as [admission webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/), to block creating any namespace with the name of [public TLDs](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
 {{< /warning >}}
 
 ## Not all objects are in a namespace
 
-Most Kubernetes resources (e.g. pods, services, replication controllers, and others) are
-in some namespaces.  However namespace resources are not themselves in a namespace.
-And low-level resources, such as
-[nodes](/docs/concepts/architecture/nodes/) and
-[persistentVolumes](/docs/concepts/storage/persistent-volumes/), are not in any namespace.
+Most Kubernetes resources (e.g. pods, services, replication controllers, and others) are in some namespaces.  However namespace resources are not themselves in a namespace. And low-level resources, such as [nodes](/docs/concepts/architecture/nodes/) and [persistentVolumes](/docs/concepts/storage/persistent-volumes/), are not in any namespace.
 
-To see which Kubernetes resources are and aren't in a namespace:
+To see which Kubernetes resources are and aren't in a namespace, we can use `kubectl` with the `--namespaced` flag:
 
 ```shell
 # In a namespace
