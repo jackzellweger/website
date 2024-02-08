@@ -114,7 +114,7 @@ kubectl config view --minify | grep namespace:
 
 ### Tips and tricks
 
-- Namespaces should only be used to separate resources that differ sufficiently. For example, for different versions of the same software: use {{< glossary_tooltip text="labels" term_id="label" >}} to reference resources within the same namespace.
+- Namespaces should only be used to separate resources that differ sufficiently. For example, you can use use {{< glossary_tooltip text="labels" term_id="label" >}} to reference different versions of the same software running <!-- TODO: Rewrite this to be more clear about using labels to label different versions of the same software, that it should be in the same namespace --> resources within the same namespace.
 
 <!-- TODO: Why? -->
 - For a production cluster, consider _not_ using the `default` namespace. Instead, make other namespaces and use those.
