@@ -10,42 +10,38 @@ weight: 45
 
 <!-- overview -->
 
-In Kubernetes, _namespaces_ provides a mechanism for isolating groups of resources within a single cluster. 
+In Kubernetes, _namespaces_ provides a mechanism for isolating groups of resources within a cluster. 
 
-<!-- Needs work here -->
-
-Names of resources need to be unique within a namespace, but not across namespaces. Namespace-based scoping applies to namespaced {{< glossary_tooltip text="objects" term_id="object" >}} _(e.g. Deployments, Services, etc)_ only and not to cluster-wide objects _(e.g. StorageClass, Nodes, PersistentVolumes, etc)_.
+Namespace-based scoping applies to namespaced {{< glossary_tooltip text="objects" term_id="object" >}} _(e.g. Deployments, Services, etc)_ only, but not to cluster-wide objects _(e.g. StorageClass, Nodes, PersistentVolumes, etc)_.
 
 <!-- body -->
 
-## When to Use Multiple Namespaces
+## How Organizations Use Namespaces
 
-Namespaces
+Namespaces are versatile and used by organizations both small and large for different purposes.
 
-Used by organizations both small and large for different purposes, namespaces are super versitile. 
+For example, small orgs may use namespaces to set boundaries between resources and limit blast radius of any errors or security issues. Larger organizations may use namespaces to separate resources that handle different kinds of workloads, or resources managed by different departments or teams (for example, via [resource quotas](/docs/concepts/policy/resource-quotas/)).
 
-For example, small orgs may use namespaces to set boundaries between resources and limit blast radius of any errors or security vulnerabilities that may occur. Larger organizations may use namespaces to logically separate resources that handle different kinds of workloads, or resources managed by different departments or teams.
+Namespaces are not strictly necessary for Kubernetes to function, and not every team needs the boundaries that namespaces provide. Start using namespaces when you need what they offer!
 
-Namespaces are not strictly necessary for Kubernetes to function, and not every team needs the logical boundaries that namespaces provide. Start using namespaces when you need what they offer!
+## How Namespace Scoping Works
 
-Namespaces provide a scope for names.  Names of resources need to be unique within a namespace,
-but not across namespaces. Namespaces cannot be nested inside one another and each Kubernetes 
-resource can only be in one namespace.
+- Each resource name is required to be unique within a namespace. Resources in different namespaces can have the same name.
 
-Namespaces are a way to divide cluster resources between multiple users (via [resource quota](/docs/concepts/policy/resource-quotas/)).
+- Namespaces cannot be nested in other namespaces, and each Kubernetes resource can only be in one namespace.
 
-It is not necessary to use multiple namespaces to separate slightly different
-resources, such as different versions of the same software: use
-{{< glossary_tooltip text="labels" term_id="label" >}} to distinguish
-resources within the same namespace.
+## Tips & Tricks
 
-{{< note >}}
-For a production cluster, consider _not_ using the `default` namespace. Instead, make other namespaces and use those.
-{{< /note >}}
+- It is not necessary to use multiple namespaces to separate slightly different resources, such as different versions of the same software: use {{< glossary_tooltip text="labels" term_id="label" >}} to distinguish resources within the same namespace.
 
-## Initial namespaces
+<!-- Why? -->
+- For a production cluster, consider _not_ using the `default` namespace. Instead, make other namespaces and use those.
 
-Kubernetes starts with four initial namespaces:
+## Out-of-The-Box Namespaces
+
+Without any other configuration Kubernetes starts with four namespaces:
+
+<!-- These are wrong -->
 
 `default`
 : Kubernetes includes this namespace so that you can start using your new cluster without first creating a namespace.
