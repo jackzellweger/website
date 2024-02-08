@@ -24,13 +24,13 @@ For example, small organizations might use namespaces to set boundaries between 
 
 Namespaces are not strictly necessary for Kubernetes to function, and not every team needs the boundaries that namespaces provide. Start using namespaces when you need what they offer!
 
-## How Namespace scoping works
+## How namespace scoping works
 
 - Resources in different namespaces can have the same name, but Kubernetes requires that each resource name is unique within a namespace. 
 
 - Namespaces cannot be nested in other namespaces, and each Kubernetes resource can only be in one namespace.
 
-## Out-of-the-box Namespaces
+## Out-of-the-box namespaces
 
 Without any other configuration Kubernetes starts with four namespaces:
 
@@ -48,7 +48,21 @@ Without any other configuration Kubernetes starts with four namespaces:
 `kube-system`
 : The namespace for objects created by the Kubernetes system.
 
-## Working with Namespaces
+## Some resources are namespaced, some are not
+
+Most Kubernetes resources—like pods, services, replication controllers, and others—are in some namespace (i.e. are _namespaced_). However, low-level resources, such as [nodes](/docs/concepts/architecture/nodes/), [persistentVolumes](/docs/concepts/storage/persistent-volumes/), as well as namespaces themselves, are not namespaced.
+
+To see which Kubernetes resources are and are not namespaced, we can use `kubectl` with the `--namespaced` flag:
+
+```shell
+# In a namespace
+kubectl api-resources --namespaced=true
+
+# Not in a namespace
+kubectl api-resources --namespaced=false
+```
+
+## Working with namespaces
 
 ### Namespace creation and deletion
 
@@ -66,6 +80,7 @@ You can list the current namespaces in a cluster using:
 ```shell
 kubectl get namespace
 ```
+
 ```
 NAME              STATUS   AGE
 default           Active   1d
@@ -74,29 +89,26 @@ kube-public       Active   1d
 kube-system       Active   1d
 ```
 
-### Specifying the namespace for a `kubectl` command
+### Specifying the namespace in `kubectl`
 
-Certain `kubectl` subcommands take a `--namespace` flag that sets the namespace for the operation. For example:
+`kubectl` commands apply to the `default` namespace unless otherwise configured. However, certain `kubectl` subcommands take a `--namespace` flag that sets the namespace for the operation. For example:
 
 ```shell
+# Launch a new pod named 'nginx' using the 'nginx' image in the specified namespace
 kubectl run nginx --image=nginx --namespace=<insert-namespace-name-here>
 
+# Retrieve a list of all pods within the specified namespace
 kubectl get pods --namespace=<insert-namespace-name-here>
 ```
 
-<!-- TODO: Fact-check this -->
-Without specifying the `--namespace` flag, `kubectl` commands apply to the default namespace unless otherwise configured.
-
-### Setting the namespace preference
-
 <!-- TODO: Improve writing, make easier to understand -->
-You can permanently save a namespace for all subsequent `kubectl` commands in your current context.
+You can also save a 'standard' namespace for all subsequent `kubectl` commands in your current context.
 
 ```shell
-# Save standard namespace
+# Save a standard namespace
 kubectl config set-context --current --namespace=<insert-namespace-name-here>
 
-# Validate the save
+# Validate the save of the standard namespace
 kubectl config view --minify | grep namespace:
 ```
 
@@ -111,7 +123,7 @@ kubectl config view --minify | grep namespace:
 
 When you create a [Service](/docs/concepts/services-networking/service/), Kubernetes creates a corresponding [DNS entry](/docs/concepts/services-networking/dns-pod-service/) of the form `<service-name>.<namespace-name>.svc.cluster.local`.
 
-### Shorthand to reference local services
+### Shorthand to reference services in local namespaces
 
 When communicating with services in their local namespace, containers can use the shorthand `<service-name>` (without the rest of the full domain name `<namespace-name>.svc.cluster.local`), and Kubernetes automatic DNS resolution will resolve to the correct service in the local namespace. This shorthand and automatic DNS resolution is useful when using the same configuration across multiple namespaces—Development, Staging and Production—for example. If containers want to communicate with services outside of the local namespace, it can use the full domain name, which includes the service name, namespace name, and the standard `svc.cluster.local` suffix.
 
@@ -125,37 +137,21 @@ When communicating with services in their local namespace, containers can use th
 
 ### Namespace name requirements
 
-As a result of the above domain conventions, all namespace names must be valid [RFC 1123 DNS labels](/docs/concepts/overview/working-with-objects/names/#dns-label-names). This ensures that the names can be effectively used within Kubernetes DNS records.
+As a result of the above domain conventions, all namespace names must be valid [RFC 1123 DNS labels](/docs/concepts/overview/working-with-objects/names/#dns-label-names). This ensures that the names are valid when used in Kubernetes DNS records.
 
 {{< warning >}}
 By creating namespaces with the same name as [public top-level domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt), services with short DNS names run the risk of collision with public DNS records. Workloads from any namespace performing a DNS lookup without a [trailing dot](https://datatracker.ietf.org/doc/html/rfc1034#page-8) will be redirected to those services, taking precedence over public DNS.
 
 <!-- Without a trailing dot, DNS lookups by workloads may first attempt to resolve names using internal DNS configurations. If no internal match is found, and the queried name matches a public domain, the resolver might then query external DNS, potentially leading to responses from public services. Including a trailing dot in the query explicitly bypasses internal search domains, directing the resolver to treat the query as an absolute name and consult the appropriate DNS records directly.-->
 
-To mitigate this, limit privileges for creating namespaces to trusted users. If required, you could additionally configure third-party security controls, such as [admission webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/), to block creating any namespace with the name of [public TLDs](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
+To mitigate this, limit privileges for creating namespaces to trusted users. If required, you could additionally configure third-party security controls, such as [admission webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/) to block creating any namespace with the name of [public top-level-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
 {{< /warning >}}
 
-## Not all objects are in a namespace
-
-Most Kubernetes resources (e.g. pods, services, replication controllers, and others) are in some namespaces.  However namespace resources are not themselves in a namespace. And low-level resources, such as [nodes](/docs/concepts/architecture/nodes/) and [persistentVolumes](/docs/concepts/storage/persistent-volumes/), are not in any namespace.
-
-To see which Kubernetes resources are and aren't in a namespace, we can use `kubectl` with the `--namespaced` flag:
-
-```shell
-# In a namespace
-kubectl api-resources --namespaced=true
-
-# Not in a namespace
-kubectl api-resources --namespaced=false
-```
-
-## Automatic labelling
+## Automatic labelling of namespaced resources
 
 {{< feature-state for_k8s_version="1.22" state="stable" >}}
 
-The Kubernetes control plane sets an immutable {{< glossary_tooltip text="label" term_id="label" >}}
-`kubernetes.io/metadata.name` on all namespaces.
-The value of the label is the namespace name.
+The Kubernetes control plane sets an immutable {{< glossary_tooltip text="label" term_id="label" >}} `kubernetes.io/metadata.name` on all namespaces. The value of that label is the namespace name.
 
 
 ## {{% heading "whatsnext" %}}
