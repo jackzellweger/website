@@ -16,7 +16,7 @@ Namespace-based scoping applies to namespaced {{< glossary_tooltip text="objects
 
 <!-- body -->
 
-## How Organizations Use Namespaces
+## How organizations use namespaces
 
 Namespaces are versatile and used by organizations both small and large for different purposes.
 
@@ -24,24 +24,17 @@ For example, small orgs may use namespaces to set boundaries between resources a
 
 Namespaces are not strictly necessary for Kubernetes to function, and not every team needs the boundaries that namespaces provide. Start using namespaces when you need what they offer!
 
-## How Namespace Scoping Works
+## How Namespace scoping works
 
 - Each resource name is required to be unique within a namespace. Resources in different namespaces can have the same name.
 
 - Namespaces cannot be nested in other namespaces, and each Kubernetes resource can only be in one namespace.
 
-## Tips & Tricks
-
-- It is not necessary to use multiple namespaces to separate slightly different resources, such as different versions of the same software: use {{< glossary_tooltip text="labels" term_id="label" >}} to distinguish resources within the same namespace.
-
-<!-- Why? -->
-- For a production cluster, consider _not_ using the `default` namespace. Instead, make other namespaces and use those.
-
-## Out-of-The-Box Namespaces
+## Out-of-the-box Namespaces
 
 Without any other configuration Kubernetes starts with four namespaces:
 
-<!-- These are wrong -->
+<!-- TODO: These are wrong -->
 
 `default`
 : Kubernetes includes this namespace so that you can start using your new cluster without first creating a namespace.
@@ -56,6 +49,8 @@ Without any other configuration Kubernetes starts with four namespaces:
 : The namespace for objects created by the Kubernetes system.
 
 ## Working with Namespaces
+
+### Namespace creation and deletion
 
 Creation and deletion of namespaces are described in the
 [Admin Guide documentation for namespaces](/docs/tasks/administer-cluster/namespaces).
@@ -79,28 +74,35 @@ kube-public       Active   1d
 kube-system       Active   1d
 ```
 
+### Specifying the namespace for a `kubectl` command
 
-### Setting the namespace for a request
-
-To set the namespace for a current request, use the `--namespace` flag.
-
-For example:
+Certain `kubectl` subcommands take a `--namespace` flag that sets the namespace for the operation. For example:
 
 ```shell
 kubectl run nginx --image=nginx --namespace=<insert-namespace-name-here>
 kubectl get pods --namespace=<insert-namespace-name-here>
 ```
 
+<!-- TODO: Fact-check this -->
+Without specifying the `--namespace` flag, `kubectl` commands apply to the default namespace unless otherwise configured.
+
 ### Setting the namespace preference
 
-You can permanently save the namespace for all subsequent kubectl commands in that
-context.
+<!-- TODO: Improve writing, make easier to understand -->
+You can permanently save the namespace for all subsequent kubectl commands in that context.
 
 ```shell
 kubectl config set-context --current --namespace=<insert-namespace-name-here>
 # Validate it
 kubectl config view --minify | grep namespace:
 ```
+
+### Tips and tricks
+
+- It is not necessary to use multiple namespaces to separate slightly different resources, such as different versions of the same software: use {{< glossary_tooltip text="labels" term_id="label" >}} to distinguish resources within the same namespace.
+
+<!-- TODO: Why? -->
+- For a production cluster, consider _not_ using the `default` namespace. Instead, make other namespaces and use those.
 
 ## Namespaces and DNS
 
