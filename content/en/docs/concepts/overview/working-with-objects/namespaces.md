@@ -20,13 +20,13 @@ Namespace-based scoping applies to namespaced {{< glossary_tooltip text="objects
 
 Namespaces are versatile and used by organizations both small and large for different purposes.
 
-For example, small orgs may use namespaces to set boundaries between resources and limit blast radius of any errors or security issues. Larger organizations may use namespaces to separate resources that handle different kinds of workloads, or resources managed by different departments or teams (for example, via [resource quotas](/docs/concepts/policy/resource-quotas/)).
+For example, small organizations might use namespaces to set boundaries between resources running in the cluster and limit blast radius of any errors or security issues. Larger organizations may use namespaces to separate resources that handle different kinds of workloads, or resources managed by different departments or teams (for example, via [resource quotas](/docs/concepts/policy/resource-quotas/)).
 
 Namespaces are not strictly necessary for Kubernetes to function, and not every team needs the boundaries that namespaces provide. Start using namespaces when you need what they offer!
 
 ## How Namespace scoping works
 
-- Each resource name is required to be unique within a namespace. Resources in different namespaces can have the same name.
+- Resources in different namespaces can have the same name, but Kubernetes requires that each resource name is unique within a namespace. 
 
 - Namespaces cannot be nested in other namespaces, and each Kubernetes resource can only be in one namespace.
 
@@ -43,7 +43,7 @@ Without any other configuration Kubernetes starts with four namespaces:
 : This namespace holds [Lease](/docs/concepts/architecture/leases/) objects associated with each node. Node leases allow the kubelet to send [heartbeats](/docs/concepts/architecture/nodes/#heartbeats) so that the control plane can detect node failure.
 
 `kube-public`
-: This namespace is readable by *all* clients (including those not authenticated). This namespace is mostly reserved for cluster usage, in case that some resources should be visible and readable publicly throughout the whole cluster. The public aspect of this namespace is only a convention, not a requirement.
+: This namespace is readable by *all* clients (including those not authenticated). This namespace is mostly reserved for use by the cluster itself, in case that some resources should be visible and readable publicly throughout the whole cluster. The public aspect of this namespace is only a convention, not a requirement.
 
 `kube-system`
 : The namespace for objects created by the Kubernetes system.
@@ -80,6 +80,7 @@ Certain `kubectl` subcommands take a `--namespace` flag that sets the namespace 
 
 ```shell
 kubectl run nginx --image=nginx --namespace=<insert-namespace-name-here>
+
 kubectl get pods --namespace=<insert-namespace-name-here>
 ```
 
@@ -92,8 +93,10 @@ Without specifying the `--namespace` flag, `kubectl` commands apply to the defau
 You can permanently save a namespace for all subsequent `kubectl` commands in your current context.
 
 ```shell
+# Save standard namespace
 kubectl config set-context --current --namespace=<insert-namespace-name-here>
-# Validate it
+
+# Validate the save
 kubectl config view --minify | grep namespace:
 ```
 
