@@ -25,7 +25,7 @@ For example, small organizations might use namespaces to set boundaries between 
 Namespaces are not strictly necessary for Kubernetes to function, and not every team needs the boundaries that namespaces provide. Start using namespaces when you need what they offer!
 
 {{< note >}}
-Namespaces should be used to separate significantly different resources. For finer granularity, such as different versions of the same software, use {{< glossary_tooltip text="labels" term_id="label" >}} within the same namespace.
+    Namespaces should be used to separate significantly different resources. For finer granularity, such as different versions of the same software, use {{< glossary_tooltip text="labels" term_id="label" >}} within the same namespace.
 {{< /note >}}
 
 ## How namespace scoping works
@@ -135,15 +135,15 @@ When communicating with services in their local namespace, containers can use th
 As a result of the above domain conventions, all namespace names must be valid [RFC 1123 DNS labels](/docs/concepts/overview/working-with-objects/names/#dns-label-names). This ensures the names are valid when used in Kubernetes DNS records.
 
 {{< warning >}}
-As reviewed above, services are addressed in the following way: `<service-name>.<namespace-name>.svc.cluster.local`
+    As reviewed above, services are addressed in the following way: `<service-name>.<namespace-name>.svc.cluster.local`
 
-Therefore, it's best to avoid namespace names that conflict with any [public top-level-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt), for example: `com`, `org`, `gov`, or `yoga`.
+    Therefore, it's best to avoid namespace names that conflict with any [public top-level-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt), for example: `com`, `org`, `gov`, or `yoga`.
 
-For example, let's say you named your namespace `com`. Within `com` is a local service `example`, and a pod `xyz` that wants to connect to `example`. Since pods can use short DNS names to access local resources, `xyz` might just use `example` (without `com.svc.cluster.local`) to try to connect to our `example` service.
+    For example, let's say you named your namespace `com`. Within `com` is a local service `example`, and a pod `xyz` that wants to connect to `example`. Since pods can use short DNS names to access local resources, `xyz` might just use `example` (without `com.svc.cluster.local`) to try to connect to our `example` service.
 
-If your Kubernetes DNS resolver is configured to append the namespace (`com` in this case) in its search for resolution, it is possible that Kubernetes will, in its search for the proper service to connect to, attempt to resolve to `<service-name>.<namespace-name>.`, or in this case, `example.com`, which is an actual domain name that exists outside the Kubernetes cluster. This could inadvertently lead the DNS query outside of the intended internal cluster network, potentially causing the pod to connect to an external service on the internet rather than the intended internal service.
+    If your Kubernetes DNS resolver is configured to append the namespace (`com` in this case) in its search for resolution, it is possible that Kubernetes will, in its search for the proper service to connect to, attempt to resolve to `<service-name>.<namespace-name>.`, or in this case, `example.com`, which is an actual domain name that exists outside the Kubernetes cluster. This could inadvertently lead the DNS query outside of the intended internal cluster network, potentially causing the pod to connect to an external service on the internet rather than the intended internal service.
 
-To mitigate this, limit privileges for creating namespaces to trusted users. If required, configure third-party security controls, such as [admission webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/) to block the creation of any namespace with the name of [public top-level-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
+    To mitigate this, limit privileges for creating namespaces to trusted users. If required, configure third-party security controls, such as [admission webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/) to block the creation of any namespace with the name of [public top-level-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
 {{< /warning >}}
 
 ## Automatic labelling of namespaced resources
