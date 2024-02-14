@@ -45,7 +45,7 @@ Without any other configuration Kubernetes starts with four namespaces:
 : This namespace holds [Lease](/docs/concepts/architecture/leases/) objects associated with each node. Node leases allow the kubelet to send [heartbeats](/docs/concepts/architecture/nodes/#heartbeats) so that the control plane can detect node failure.
 
 `kube-public`
-: This namespace is readable by *all* clients (including those not authenticated). This namespace is mostly reserved for cluster usage, in case that some resources should be visible and readable publicly throughout the whole cluster. The public aspect of this namespace is only a convention, not a requirement.
+: Standard practice dictates that resources in this namespace are available to every client, whether they're authenticated or not. This namespace's "public" designation and its unrestricted access is a convention not strictly enforced in Kubernetes.
 
 `kube-system`
 : The namespace for objects created by the Kubernetes system.
@@ -120,7 +120,7 @@ When you create a [Service](/docs/concepts/services-networking/service/), Kubern
 
 ### Referencing services in local namespaces using short DNS names
 
-When communicating with services in their local namespace, containers can use the services short name: `<service-name>` (instead of the entire full domain name `<service-name>.<namespace-name>.svc.cluster.local`), and Kubernetes automatic DNS resolution will resolve to the correct service in the local namespace. This shorthand and automatic DNS resolution is useful when using the same configuration across multiple namespaces—Development, Staging and Production—for example. If containers want to communicate with services outside of the local namespace, it can use the full domain name, which includes the service name, namespace name, and the standard `svc.cluster.local` suffix.
+When communicating with services in their local namespace, containers can use the services short name: `<service-name>` (instead of the entire full domain name `<service-name>.<namespace-name>.svc.cluster.local`), and Kubernetes automatic DNS resolution will resolve to the correct service in the local namespace. If containers want to communicate with services outside of the local namespace, it can use the full domain name, which includes the service name, namespace name, and the standard `svc.cluster.local` suffix.
 
 ```shell
 # When communicating with services in their local namespace
@@ -137,13 +137,13 @@ As a result of the above domain conventions, all namespace names must be valid [
 {{< warning >}}
 As reviewed above, services are addressed in the following way: `<service-name>.<namespace-name>.svc.cluster.local`
 
-Therefore, it's best to avoid namespace names that conflict with any [public top-level-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt), for example: `com`, `org`, `gov`, or `yoga`.
+Therefore, it's best to avoid namespace names that conflict with any [public top-level domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt), for example: `com`, `org`, `gov`, or even less common top-level domains like `new` or `support`.
 
 For example, let's say you named your namespace `com`. Within `com` is a local service `example`, and a pod `xyz` that wants to connect to `example`. Since pods can use short DNS names to access local resources, `xyz` might just use `example` (without `com.svc.cluster.local`) to try to connect to our `example` service.
 
 If your Kubernetes DNS resolver is configured to append the namespace (`com` in this case) in its search for resolution, it is possible that Kubernetes will, in its search for the proper service to connect to, attempt to resolve to `<service-name>.<namespace-name>.`, or in this case, `example.com`, which is an actual domain name that exists outside the Kubernetes cluster. This could inadvertently lead the DNS query outside of the intended internal cluster network, potentially causing the pod to connect to an external service on the internet rather than the intended internal service.
 
-To mitigate this, limit privileges for creating namespaces to trusted users. If required, configure third-party security controls, such as [admission webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/) to block the creation of any namespace with the name of [public top-level-domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
+To mitigate this, limit privileges for creating namespaces to trusted users. If required, configure third-party security controls, such as [admission webhooks](/docs/reference/access-authn-authz/extensible-admission-controllers/) to block the creation of any namespace with the name of [public top-level domains](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
 {{< /warning >}}
 
 ## Automatic labelling of namespaced resources
